@@ -1,8 +1,7 @@
 var request = require("request");
 
 module.exports = function (socket, params) {
-  socket.on('request', function (data) {
-    // TODO implement authentication for request api
+  socket.on('request-server', function (data) {
     var options = {
       uri: params.config.apiEndpoint + data.path,
       method: data.method,
@@ -11,7 +10,9 @@ module.exports = function (socket, params) {
     };
 
     request(options, function(error, response, body) {
-      console.log("Resquest :: ", response);
+      console.log("Resquest - error :: ", error);
+      console.log("Resquest - response :: ", response);
+      console.log("Resquest - body :: ", body);
     });
   });
 };
