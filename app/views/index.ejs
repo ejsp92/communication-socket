@@ -1,6 +1,80 @@
-<% include header %>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Helvetica Neue", helvetica, arial;
+        padding: 15px;
+      }
 
-  <h1><%-title %></h1>
-  <p>Welcome to <%-title %></p>
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
 
-<% include footer %>
+      ul li {
+        line-height: 1.4;
+      }
+    </style>
+
+    <script src="/bower_components/socket.io-client/socket.io.js"></script>
+    <script>
+    var socket = io('http://localhost:5000', {
+        'pingInterval': 5000,
+        'pingTimeout': 15000,
+        'reconnectionDelay': 5000,
+        'reconnectionDelayMax' : 15000});
+      // var socket = io('http://172.16.218.14:5000', {
+      //   'pingInterval': 2000,
+      //   'pingTimeout': 5000,
+      //   'reconnectionDelay': 5000,
+      //   'reconnectionDelayMax' : 10000});
+      socket.on('connect', function(){
+        socket.emit('authentication', { uid: 'bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa'});
+        var li = document.createElement('li');
+        li.innerHTML = 'connect ##########';
+        document.querySelector('#pings').appendChild(li);
+      });
+      socket.on('authenticated', function(){
+        var li = document.createElement('li');
+        li.innerHTML = 'authenticated ##########';
+        document.querySelector('#pings').appendChild(li);
+
+        socket.emit('request-server', {
+          path: '/api/v1/ping?by=name',
+          method: 'GET',
+          params: {},
+          headers: {}
+        });
+        var li = document.createElement('li');
+        li.innerHTML = 'request-server ##########';
+        document.querySelector('#pings').appendChild(li);
+
+      });
+      socket.on('server-message', function(message){
+        var li = document.createElement('li');
+        li.innerHTML = 'server-message :: '+ message.action +' ##########';
+        document.querySelector('#pings').appendChild(li);
+      });
+      socket.on('reconnecting', function(attempts){
+        var li = document.createElement('li');
+        li.innerHTML = 'reconnecting :: '+ attempts +' ##########';
+        document.querySelector('#pings').appendChild(li);
+      });
+      socket.on('reconnect', function(data){
+        var li = document.createElement('li');
+        li.innerHTML = 'reconnect ##########';
+        document.querySelector('#pings').appendChild(li);
+      });
+      socket.on('disconnect', function(error, param){
+        var li = document.createElement('li');
+        li.innerHTML = 'disconnect :: '+ error +' ##########';
+        document.querySelector('#pings').appendChild(li);
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Connection Test</h1>
+    <ul id='pings'></ul>
+  </body>
+</html>

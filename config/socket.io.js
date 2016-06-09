@@ -40,7 +40,7 @@ module.exports = function (server, config) {
   socketServer.on('connection', function (socket) {
     socket.on('authentication', function (data) {
       authentication.login(data).then(function(user){
-        console.log("Authenticated :: ", user);
+        console.log("Authenticated :: ", data, user);
         socket.uid = user.uid;
         socket.user = user;
 

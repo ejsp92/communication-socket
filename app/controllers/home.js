@@ -6,5 +6,5 @@ module.exports = function (app) {
 };
 
 router.get('/', function (req, res, next) {
-  res.redirect('https://vorbee.com');
+  res.render('index', {});
 });

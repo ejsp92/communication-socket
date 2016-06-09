@@ -11,8 +11,7 @@ module.exports = function (socket, params) {
 
     request(options, function(error, response, body) {
       console.log("Resquest - error :: ", error);
-      console.log("Resquest - response :: ", response);
-      console.log("Resquest - body :: ", body);
+      console.log("Resquest - response :: ", response.statusCode);
     });
   });
 };

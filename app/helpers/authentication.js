@@ -14,7 +14,7 @@ function Authentication() {}
 Authentication.prototype.login = function (params) {
   // TODO implement
   return new Promise(function(resolve, reject){
-    var user = {};
+    var user = { uid: 'bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa'};
     resolve(user);
   });
 };
@@ -25,7 +25,7 @@ Authentication.prototype.login = function (params) {
 Authentication.prototype.logout = function (params) {
   // TODO implement
   return new Promise(function(resolve, reject){
-    var user = {};
+    var user = { uid: 'bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa'};
     resolve(user);
   });
 };

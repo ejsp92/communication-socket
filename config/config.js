@@ -7,7 +7,7 @@ process.env.TZ = 'UTC';
 var config = {
   development: {
     root: rootPath,
-    apiEndpoint: 'https://localhost',
+    apiEndpoint: 'http://localhost:3000',
     app: {
       name: 'communication-socket'
     },
@@ -23,7 +23,7 @@ var config = {
 
   test: {
     root: rootPath,
-    apiEndpoint: 'https://localhost',
+    apiEndpoint: 'http://localhost:3000',
     app: {
       name: 'communication-socket'
     },
@@ -39,7 +39,7 @@ var config = {
 
   production: {
     root: rootPath,
-    apiEndpoint: 'https://localhost',
+    apiEndpoint: 'http://localhost:3000',
     app: {
       name: 'communication-socket'
     },
