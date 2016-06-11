@@ -18,7 +18,8 @@ module.exports = function (server, config) {
    *   content: {
    *     id: 1,
    *     name: 'Fred Moura'
-   *   }
+   *   },
+   *   send_to: []
    *  }
    */
 
@@ -62,7 +63,7 @@ module.exports = function (server, config) {
 
         socket.emit('authenticated');
       }, function(){
-        console.log("Unauthorized :: ", data);
+        console.log("Unauthorized :: ", data); //Debug
         socket.disconnect(true);
       });
     });
