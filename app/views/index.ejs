@@ -20,6 +20,7 @@
     <script src="/bower_components/socket.io-client/socket.io.js"></script>
     <script>
     var socket = io('http://localhost:5000', {
+        'query': 'authorization=' + JSON.stringify({uid: "bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa"}),
         'pingInterval': 5000,
         'pingTimeout': 15000,
         'reconnectionDelay': 5000,
@@ -30,9 +31,18 @@
       //   'reconnectionDelay': 5000,
       //   'reconnectionDelayMax' : 10000});
       socket.on('connect', function(){
-        socket.emit('authentication', { uid: 'bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa'});
         var li = document.createElement('li');
         li.innerHTML = 'connect ##########';
+        document.querySelector('#pings').appendChild(li);
+
+        socket.emit('request-server', {
+          path: '/api/v1/ping?by=name',
+          method: 'GET',
+          params: {},
+          headers: {}
+        });
+        var li = document.createElement('li');
+        li.innerHTML = 'request-server ##########';
         document.querySelector('#pings').appendChild(li);
       });
       socket.on('authenticated', function(){
