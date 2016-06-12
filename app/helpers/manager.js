@@ -1,4 +1,5 @@
 var createTree = require("functional-red-black-tree");
+var logger = require('winston');
 
 module.exports = new Manager();
 
@@ -18,10 +19,10 @@ Manager.prototype.add = function(socket){
   this.sockets.insert(socket.uid, socket);
 
   socket.once('disconnect', function(){
-    console.log("Socket Remove in Manager After Disconnect :: ", socket.uid);
     _this.sockets.remove(socket.uid);
+    logger.info('socket removed of the manager on disconnect', {socket_uid: socket.uid, timestamp: Date.now(), pid: process.pid});
   });
-  console.log("Socket Add in Manager :: ", socket.uid);
+  logger.info('new socket added in manager', {socket_uid: socket.uid, timestamp: Date.now(), pid: process.pid});
 };
 
 /*

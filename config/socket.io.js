@@ -1,6 +1,7 @@
 var socketIO = require('socket.io');
 var glob = require('glob');
 var redis = require('redis');
+var logger = require('winston');
 
 module.exports = function (server, config) {
   var utils = require(config.root + '/app/helpers/utils.js');
@@ -15,11 +16,11 @@ module.exports = function (server, config) {
    *   type: 'change',
    *   resource: 'User',
    *   action: 'update',
-   *   content: {
+   *   resource_content: {
    *     id: 1,
    *     name: 'Fred Moura'
    *   },
-   *   send_to: []
+   *   recipient_uids: []
    *  }
    */
 
@@ -40,8 +41,9 @@ module.exports = function (server, config) {
    */
   socketServer.on('connection', function (socket) {
     socket.on('authentication', function (data) {
+      logger.info('new request authentication', {data: data, timestamp: Date.now(), pid: process.pid});
       authentication.login(data).then(function(user){
-        console.log("Authenticated :: ", data, user);
+        logger.info('authenticated', {data: data, user: user, timestamp: Date.now(), pid: process.pid});
         socket.uid = user.uid;
         socket.user = user;
 
@@ -63,7 +65,7 @@ module.exports = function (server, config) {
 
         socket.emit('authenticated');
       }, function(){
-        console.log("Unauthorized :: ", data); //Debug
+        logger.info('unauthorized', {data: data, timestamp: Date.now(), pid: process.pid});
         socket.disconnect(true);
       });
     });
