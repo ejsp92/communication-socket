@@ -41,38 +41,43 @@ module.exports = function (server, config) {
    * Socket Authentication
    */
   io.use(function(socket, next){
+    try{
+      var requestUrl = url.parse(socket.request.url);
+      var requestQuery = requestUrl.query;
+      var requestParams = requestQuery.split("&");
 
-    var requestUrl = url.parse(socket.request.url);
-    var requestQuery = requestUrl.query;
-    var requestParams = requestQuery.split("&");
-
-    var params = {};
-    for (var i=0;i<requestParams.length;i++) {
-      var pair = requestParams[i].split("=");
-          // If first entry with this name
-      if (typeof params[pair[0]] === "undefined") {
-        params[pair[0]] = decodeURIComponent(pair[1]);
-          // If second entry with this name
-      } else if (typeof params[pair[0]] === "string") {
-        var arr = [ params[pair[0]],decodeURIComponent(pair[1]) ];
-        params[pair[0]] = arr;
-          // If third or later entry with this name
-      } else {
-        params[pair[0]].push(decodeURIComponent(pair[1]));
+      var params = {};
+      for (var i=0;i<requestParams.length;i++) {
+        var pair = requestParams[i].split("=");
+            // If first entry with this name
+        if (typeof params[pair[0]] === "undefined") {
+          params[pair[0]] = decodeURIComponent(pair[1]);
+            // If second entry with this name
+        } else if (typeof params[pair[0]] === "string") {
+          var arr = [ params[pair[0]],decodeURIComponent(pair[1]) ];
+          params[pair[0]] = arr;
+            // If third or later entry with this name
+        } else {
+          params[pair[0]].push(decodeURIComponent(pair[1]));
+        }
       }
+
+      authorization = JSON.parse(params.authorization);
+      logger.info('new request', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
+
+      authentication.login(authorization).then(function(user){
+        logger.info('authenticated', {request_url: socket.request.url, authorization: authorization, user: user, timestamp: Date.now(), pid: process.pid});
+        socket.uid = user.uid;
+        socket.user = user;
+        next();
+      }, function () {
+        logger.info('unauthorized', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
+        next(new Error('Unauthorized'));
+      });
+    }catch(e){
+      logger.info('Unexpected Error', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
+      next(new Error('Unexpected Error'));
     }
-
-    logger.info('new request', {request_url: socket.request.url, authorization: params.authorization, timestamp: Date.now(), pid: process.pid});
-
-    authentication.login(params.authorization).then(function(user){
-      logger.info('authenticated', {request_url: socket.request.url, authorization: params.authorization, user: user, timestamp: Date.now(), pid: process.pid});
-      socket.uid = user.uid;
-      socket.user = user;
-      next();
-    }, function () {
-      logger.info('unauthorized', {request_url: socket.request.url, authorization: params.authorization, timestamp: Date.now(), pid: process.pid});
-      next(new Error('Unauthorized'));
-    });
   });
 
   /*
