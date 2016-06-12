@@ -4,14 +4,14 @@ var logger = require('winston');
 module.exports = new Manager();
 
 /*
- *
+ * Manager Sockets
  */
 function Manager() {
   this.sockets = createTree();
 }
 
 /*
- *
+ * Insert new socket in the tree
  */
 Manager.prototype.add = function(socket){
   var _this = this;
@@ -26,21 +26,21 @@ Manager.prototype.add = function(socket){
 };
 
 /*
- *
+ * Get socket by uid
  */
 Manager.prototype.get = function(uid){
   return this.sockets.get(uid);
 };
 
 /*
- *
+ * Remove socket by uid
  */
 Manager.prototype.remove = function(uid){
   return this.sockets.remove(uid);
 };
 
 /*
- *
+ * Check if socket is connected
  */
 Manager.prototype.isOnline = function(uid){
   return this.sockets.find(uid) !== null;

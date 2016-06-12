@@ -9,9 +9,9 @@ module.exports = function (server, config) {
   var authentication = require(config.root + '/app/helpers/authentication.js');
   var manager = require(config.root + '/app/helpers/manager.js');
 
-  var redis = redisClient.createClient(config.db);
-  redis.subscribe('server-message');
   /*
+   * Start Redis Subscribe
+   *
    * Server Message Structure
    * message = {
    *   type: 'change',
@@ -24,18 +24,23 @@ module.exports = function (server, config) {
    *   recipient_uids: []
    *  }
    */
+  var redis = redisClient.createClient(config.db);
+  redis.subscribe('server-message');
 
-  var io = socketIO(server, config.socket.options);
-
-  var list = [];
   /*
    * Listeners
    */
+  var list = [];
   var listeners = [];
   list = glob.sync(config.root + '/app/listeners/**/*.js');
   list.forEach(function (listener) {
     listeners.push(require(listener));
   });
+
+  /*
+   * Start Socket Server
+   */
+  var io = socketIO(server, config.socket.options);
 
   /*
    * Socket Authentication
@@ -81,7 +86,7 @@ module.exports = function (server, config) {
   });
 
   /*
-   * Init Socket Server
+   * On Connection Socket Server
    */
   io.on('connection', function (socket) {
       manager.add(socket);

@@ -9,7 +9,7 @@ module.exports = new Authentication();
 function Authentication() {}
 
 /*
- *
+ * Login
  */
 Authentication.prototype.login = function (params) {
   // TODO implement
@@ -20,7 +20,7 @@ Authentication.prototype.login = function (params) {
 };
 
 /*
- *
+ * Logout
  */
 Authentication.prototype.logout = function (params) {
   // TODO implement
