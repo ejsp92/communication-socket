@@ -32,7 +32,7 @@
       //   'reconnectionDelayMax' : 10000});
       socket.on('connect', function(){
         var li = document.createElement('li');
-        li.innerHTML = 'connect ##########';
+        li.innerHTML = 'connect :: ' + socket.connected + ' ##########';
         document.querySelector('#pings').appendChild(li);
 
         socket.emit('request-server', {

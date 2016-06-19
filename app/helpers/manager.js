@@ -38,10 +38,3 @@ Manager.prototype.get = function(uid){
 Manager.prototype.remove = function(uid){
   return this.sockets.remove(uid);
 };
-
-/*
- * Check if socket is connected
- */
-Manager.prototype.isOnline = function(uid){
-  return this.sockets.find(uid) !== null;
-};

@@ -38,6 +38,12 @@ module.exports = function (server, config) {
   });
 
   /*
+   * Clean Setted Online
+   */
+  authentication.initRedis(config.db);
+  authentication.clean();
+
+  /*
    * Start Socket Server
    */
   var io = socketIO(server, config.socket.options);
@@ -48,29 +54,12 @@ module.exports = function (server, config) {
   io.use(function(socket, next){
     try{
       var requestUrl = url.parse(socket.request.url);
-      var requestQuery = requestUrl.query;
-      var requestParams = requestQuery.split("&");
-
-      var params = {};
-      for (var i=0;i<requestParams.length;i++) {
-        var pair = requestParams[i].split("=");
-            // If first entry with this name
-        if (typeof params[pair[0]] === "undefined") {
-          params[pair[0]] = decodeURIComponent(pair[1]);
-            // If second entry with this name
-        } else if (typeof params[pair[0]] === "string") {
-          var arr = [ params[pair[0]],decodeURIComponent(pair[1]) ];
-          params[pair[0]] = arr;
-            // If third or later entry with this name
-        } else {
-          params[pair[0]].push(decodeURIComponent(pair[1]));
-        }
-      }
+      var params = utils.getQueryParams(requestUrl);
 
       authorization = JSON.parse(params.authorization);
       logger.info('new request', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
 
-      authentication.login(authorization).then(function(user){
+      authentication.authenticate(authorization).then(function(user){
         logger.info('authenticated', {request_url: socket.request.url, authorization: authorization, user: user, timestamp: Date.now(), pid: process.pid});
         socket.uid = user.uid;
         socket.user = user;
@@ -80,30 +69,31 @@ module.exports = function (server, config) {
         next(new Error('Unauthorized'));
       });
     }catch(e){
-      logger.info('Unexpected Error', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
+      logger.info('unexpected error', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
       next(new Error('Unexpected Error'));
     }
   });
 
   /*
-   * On Connection Socket Server
+   * On Connect Socket Server
    */
   io.on('connection', function (socket) {
-      manager.add(socket);
+    authentication.setOnline(socket);
+    manager.add(socket);
 
-      /*
-       * Apply Listeners
-       */
-      listeners.forEach(function (listener) {
-        listener(socket, {
-          redis: redis,
-          manager: manager,
-          config: config
-        });
+    /*
+     * Apply Listeners
+     */
+    listeners.forEach(function (listener) {
+      listener(socket, {
+        redis: redis,
+        manager: manager,
+        config: config
       });
+    });
 
-      socket.once('disconnect', function(){
-        authentication.logout(socket);
-      });
+    socket.once('disconnect', function(){
+      authentication.setOffline(socket);
+    });
   });
 };
