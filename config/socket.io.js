@@ -24,8 +24,10 @@ module.exports = function (server, config) {
    *   recipient_uids: []
    *  }
    */
+  var subscribe = redisClient.createClient(config.db);
+  subscribe.subscribe('server-message');
+
   var redis = redisClient.createClient(config.db);
-  redis.subscribe('server-message');
 
   /*
    * Listeners
@@ -40,7 +42,7 @@ module.exports = function (server, config) {
   /*
    * Clean Setted Online
    */
-  authentication.initRedis(config.db);
+  authentication.setRedis(redis);
   authentication.clean();
 
   /*
@@ -56,7 +58,8 @@ module.exports = function (server, config) {
       var requestUrl = url.parse(socket.request.url);
       var params = utils.getQueryParams(requestUrl);
 
-      authorization = JSON.parse(params.authorization);
+      try{ authorization = JSON.parse(params.authorization); }
+      catch(e) { authorization = params.authorization }
       logger.info('new request', {request_url: socket.request.url, authorization: authorization, timestamp: Date.now(), pid: process.pid});
 
       authentication.authenticate(authorization).then(function(user){
@@ -87,6 +90,7 @@ module.exports = function (server, config) {
     listeners.forEach(function (listener) {
       listener(socket, {
         redis: redis,
+        subscribe: subscribe,
         manager: manager,
         config: config
       });

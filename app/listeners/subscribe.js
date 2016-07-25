@@ -10,12 +10,12 @@ module.exports = function (socket, params) {
         socket.emit('server-message', parsed);
       }
     }catch(e){
-      console.error(e);
+      logger.error(e);
     }
   };
-  params.redis.on('message', onMessage);
+  params.subscribe.on('message', onMessage);
   socket.once('disconnect', function(){
-    params.redis.removeListener('message', onMessage);
-    logger.info('redis removeListener on disconnect', {socket_uid: socket.uid, timestamp: Date.now(), pid: process.pid});
+    params.subscribe.removeListener('message', onMessage);
+    logger.info('redis subscribe removeListener on disconnect', {socket_uid: socket.uid, timestamp: Date.now(), pid: process.pid});
   });
 };

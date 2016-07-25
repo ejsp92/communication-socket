@@ -1,6 +1,5 @@
 var Promise = require('promise');
 var request = require("request");
-var redisClient = require('redis');
 var logger = require('winston');
 
 module.exports = new Authentication();
@@ -16,8 +15,8 @@ function Authentication() {
 /*
  * Set Online
  */
-Authentication.prototype.initRedis = function (db) {
-  this.redis = redisClient.createClient(db);
+Authentication.prototype.setRedis = function (redis) {
+  this.redis = redis;
 };
 
 /*
@@ -26,7 +25,7 @@ Authentication.prototype.initRedis = function (db) {
 Authentication.prototype.authenticate = function (params) {
   // TODO implement
   return new Promise(function(resolve, reject){
-    var user = { uid: 'bf58a38bcea50effc0df914370b69afc7afaad2f5758caaa'};
+    var user = { uid: ( Math.floor(Math.random() * (999999999 - 100000000 + 1)) + 100000000 ) };
     resolve(user);
   });
 };
